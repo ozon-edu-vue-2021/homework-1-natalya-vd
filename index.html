@@ -23,8 +23,8 @@
         </div>
         <div class="math">
             Step:
-            <button class="button minus">-2</button>
-            <button class="button plus">+2</button>
+            <button class="button minus" v-on:click="decrementStepHandler">-2</button>
+            <button class="button plus" v-on:click="incrementStepHandler">+2</button>
         </div>
     </section>
     <hr>
@@ -47,60 +47,109 @@
     <script>
         const $vue = new Vue({
             el: '.vue-app',
+
             data: {
                 counter: 1,
                 step: 2
             },
+
             methods: {
-                incrementCounterHandler() {},
-                decrementCounterHandler() {}
-                //...
+                incrementCounterHandler() {
+                    this.counter++;
+                },
+
+                decrementCounterHandler() {
+                    this.counter--;
+                },
+
+                incrementStepHandler() {
+                    this.step += 2;
+                },
+
+                decrementStepHandler() {
+                    this.step -= 2;
+                }
             },
+
             computed: {
-                sum() {}
+                sum() {
+                    return this.counter + this.step;
+                }
             }
         })
     </script>
     <script>
         const counterEl = document.querySelector('.js-app .counter');
-        const buttonElMinus = document.querySelector('.js-app .minus');
-        const buttonElPlus = document.querySelector('.js-app .plus');
-        const sumEl = document.querySelector('.js-app .sum');
         const stepEl = document.querySelector('.js-app .step');
+        const sumEl = document.querySelector('.js-app .sum');
+
+        const buttonsElMinus = [...document.querySelectorAll('.js-app .minus')];
+        const buttonsElPlus = [...document.querySelectorAll('.js-app .plus')];
 
         const data = {
             counter: 1,
             step: 2
         };
 
-        const incrementCounterHandler = function () {};
-        const decrementCounterHandler = function () {};
-        //...
-        const getSum = function () {};
+        //Сначала рендер counter и step был в строках 97, 101, 105, 109. Но при изменении data.counter и data.step в консоли перерисовывалась только сумма, counter и step не перерисовывались на странице. Перенесла рендер в строку 135
+        const incrementCounterHandler = () => {
+            data.counter++; //сеттер
+            //counterEl.textContent = data.counter; //геттер
+        };
+        const decrementCounterHandler = () => {
+            data.counter--; //сеттер
+            //counterEl.textContent = data.counter; //геттер
+        };
+        const incrementStepHandler = () => {
+            data.step += 2; //сеттер
+            //stepEl.textContent = data.step; //геттер
+        };
+        const decrementStepHandler = () => {
+            data.step -= 2; //сеттер
+            //stepEl.textContent = data.step; //геттер
+        };
+        
+        const getSum = () => {
+            sumEl.textContent = data.counter + data.step; // геттер
+        };
+
+        function addClick(button, func) {
+            button.addEventListener('click', func);
+        };
 
         const queue = [getSum];
 
         Object.keys(data).forEach(key => {
-            let value = data[key]; // data.counter, data.counter1, data.counter2
+            let value = data[key];
             Object.defineProperty(data, key, {
                 get: function () {
-                    console.log('get');
-                    // queue.push();
+                    console.log(`get ${key}`);
+                    
                     return value;
                 },
                 set: function (newValue) {
-                    console.log('set');
+                    console.log(`set ${key}`);
                     value = newValue;
                     queue.forEach(fn => fn());
+                    
+                    if(key === 'counter') {
+                        counterEl.textContent = data.counter;
+                    } else if(key === 'step') {
+                        stepEl.textContent = data.step;
+                    };
                 }
             });
         });
 
-        counterEl.textContent = data.counter;
-        stepEl.textContent = data.step;
+        counterEl.textContent = data.counter; //геттер
+        stepEl.textContent = data.step; //геттер
         getSum();
-        buttonElMinus.addEventListener('click', decrementCounterHandler);
-        buttonElPlus.addEventListener('click', incrementCounterHandler);
+
+        addClick(buttonsElMinus[0], decrementCounterHandler);
+        addClick(buttonsElPlus[0], incrementCounterHandler);
+
+        addClick(buttonsElMinus[1], decrementStepHandler);
+        addClick(buttonsElPlus[1], incrementStepHandler);
     </script>
 </body>
 
